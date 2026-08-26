@@ -26,7 +26,7 @@ function MainTabs() {
     headerShown: false,
     tabBarStyle: styles.tabBar,
     tabBarActiveTintColor: colors.accent,
-    tabBarInactiveTintColor: colors.muted,
+    tabBarInactiveTintColor: colors.slate,
     tabBarLabelStyle: styles.tabLabel,
     tabBarIcon: ({ color, size }) => <Ionicons name={tabIcons[route.name] ?? 'ellipse'} size={size} color={color} />,
   })}>
@@ -43,7 +43,7 @@ function RootNavigation() {
   if (!signedIn) return <LoginScreen />;
   return <NavigationContainer>
     <Stack.Navigator screenOptions={{
-      headerStyle: { backgroundColor: colors.bg },
+      headerStyle: { backgroundColor: colors.panel },
       headerTintColor: colors.text,
       contentStyle: { backgroundColor: colors.bg },
       headerShadowVisible: false,
@@ -58,7 +58,7 @@ function RootNavigation() {
 export default function App() {
   return <SafeAreaProvider>
     <StateProvider>
-      <StatusBar style="light" />
+      <StatusBar style="dark" backgroundColor={colors.bg} />
       <RootNavigation />
     </StateProvider>
   </SafeAreaProvider>;
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     height: 76,
     paddingTop: 9,
     paddingBottom: 10,
-    backgroundColor: '#111114F2',
+    backgroundColor: '#FFFFFFF2',
     borderTopColor: colors.border,
   },
   tabLabel: { fontSize: 10, fontWeight: '700' },
