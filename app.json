@@ -4,7 +4,8 @@
     "slug": "kissonde-gym",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F7F8FA",
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
