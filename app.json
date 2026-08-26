@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Kissonde Gym",
+    "slug": "kissonde-gym",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ao.kissonde.gym"
+    },
+    "android": {
+      "package": "ao.kissonde.gym"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
