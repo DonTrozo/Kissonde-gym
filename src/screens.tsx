@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -34,7 +34,7 @@ export function LoginScreen() {
 export function HomeScreen() {
   const navigation = useNavigation<any>();
   const { points, completedExercises, bookedClasses } = useAppState();
-  const nextClass = classes.find(c => bookedClasses.includes(c.id)) ?? classes[1];
+  const nextClass = classes.find(c => bookedClasses.includes(c.id)) ?? classes[0]!;
   const workoutPercent = Math.round((completedExercises.length / exercises.length) * 100);
   return <Shell>
     <View style={styles.topbar}><View><Text style={styles.brand}>KISSONDE</Text><Text style={styles.brandSub}>GYM</Text></View><Pressable onPress={() => navigation.navigate('Profile')} style={styles.avatar}><Ionicons name="person" size={19} color={colors.text} /></Pressable></View>
@@ -44,7 +44,7 @@ export function HomeScreen() {
       <View style={styles.divider} /><View style={styles.metricsRow}><Metric value={points.toLocaleString('pt-PT')} label="Pontos Kissonde" /><Metric value={`${member.streak}x`} label="Treinos esta semana" /><Metric value="42%" label="Ocupação agora" /></View>
     </Card>
     <SectionHeader title="Treino de hoje" action={`Semana 4 · ${workoutPercent}%`} />
-    <Card><View style={styles.spaceBetween}><View style={{ flex: 1 }}><Text style={styles.cardTitle}>Push Day</Text><Text style={styles.cardMuted}>12 semanas · Hipertrofia intermédia</Text></View><Pill tone={completedExercises.length === exercises.length ? 'success' : 'default'}>{completedExercises.length}/{exercises.length} exercícios</Pill></View><View style={styles.progressTrack}><View style={[styles.progressFill, { width: `${workoutPercent}%` }]} /></View></Card>
+    <Card><View style={styles.spaceBetween}><View style={{ flex: 1 }}><Text style={styles.cardTitle}>Push Day</Text><Text style={styles.cardMuted}>12 semanas · Hipertrofia intermédia</Text></View><Pill tone={completedExercises.length === exercises.length ? 'success' : 'default'}>{completedExercises.length}/{exercises.length} exercícios</Pill></View><View style={styles.progressTrack}><View style={[styles.progressFill, { width: `${workoutPercent}%` as any }]} /></View></Card>
     <SectionHeader title="Próxima aula" />
     <Card><View style={styles.spaceBetween}><View><Text style={styles.cardTitle}>{nextClass.name}</Text><Text style={styles.cardMuted}>{nextClass.instructor} · {nextClass.duration}</Text></View><View style={styles.timeBox}><Text style={styles.time}>{nextClass.time}</Text></View></View></Card>
     <SectionHeader title="Melhor hora para treinar" />
