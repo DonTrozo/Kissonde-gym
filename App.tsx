@@ -1,17 +1,31 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { BrandLogo } from './src/brand';
 import { colors } from './src/theme';
 import { StateProvider, useAppState } from './src/state';
-import { AccessScreen, ClassesScreen, HomeScreen, LoginScreen, ProfileScreen, RewardsScreen, SupportScreen, TrainScreen } from './src/screens';
+import { AccessScreen, ClassesScreen, HomeScreen, LoginScreen, ProfileScreen, RewardsScreen, SupportScreen, TrainScreen } from './src/screens/index';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+
+const navigationTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: colors.accent,
+    background: colors.bg,
+    card: colors.panel,
+    text: colors.text,
+    border: colors.border,
+    notification: colors.accent,
+  },
+};
 
 const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
   'Início': 'home',
@@ -24,6 +38,7 @@ const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
 function MainTabs() {
   return <Tab.Navigator screenOptions={({ route }) => ({
     headerShown: false,
+    tabBarHideOnKeyboard: true,
     tabBarStyle: styles.tabBar,
     tabBarActiveTintColor: colors.accent,
     tabBarInactiveTintColor: colors.slate,
@@ -39,9 +54,11 @@ function MainTabs() {
 }
 
 function RootNavigation() {
-  const { signedIn } = useAppState();
+  const { signedIn, hydrated } = useAppState();
+  if (!hydrated) return <View style={styles.splash}><BrandLogo width={210} /></View>;
   if (!signedIn) return <LoginScreen />;
-  return <NavigationContainer>
+
+  return <NavigationContainer theme={navigationTheme}>
     <Stack.Navigator screenOptions={{
       headerStyle: { backgroundColor: colors.panel },
       headerTintColor: colors.text,
@@ -65,13 +82,14 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  splash: { flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' },
   tabBar: {
     position: 'absolute',
-    height: 76,
+    height: 78,
     paddingTop: 9,
     paddingBottom: 10,
     backgroundColor: '#FFFFFFF2',
     borderTopColor: colors.border,
   },
-  tabLabel: { fontSize: 10, fontWeight: '700' },
+  tabLabel: { fontSize: 11, fontWeight: '700' },
 });
