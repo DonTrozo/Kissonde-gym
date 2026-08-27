@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { BrandLogo } from './src/brand';
+import { ErrorBoundary } from './src/ErrorBoundary';
 import { colors } from './src/theme';
 import { StateProvider, useAppState } from './src/state';
 import { AccessScreen, ClassesScreen, HomeScreen, LoginScreen, ProfileScreen, RewardsScreen, SupportScreen, TrainScreen } from './src/screens/index';
@@ -73,12 +74,14 @@ function RootNavigation() {
 }
 
 export default function App() {
-  return <SafeAreaProvider>
-    <StateProvider>
-      <StatusBar style="dark" backgroundColor={colors.bg} />
-      <RootNavigation />
-    </StateProvider>
-  </SafeAreaProvider>;
+  return <ErrorBoundary>
+    <SafeAreaProvider>
+      <StateProvider>
+        <StatusBar style="dark" backgroundColor={colors.bg} />
+        <RootNavigation />
+      </StateProvider>
+    </SafeAreaProvider>
+  </ErrorBoundary>;
 }
 
 const styles = StyleSheet.create({
