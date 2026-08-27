@@ -1,8 +1,13 @@
+export type MemberStatus = 'Ativa' | 'Pendente' | 'Suspensa';
+export type ReservationStatus = 'confirmed' | 'waitlisted' | 'cancelled' | 'attended' | 'no-show';
+export type TicketStatus = 'open' | 'in_review' | 'resolved';
+export type VisitStatus = 'verified' | 'pending' | 'disputed';
+
 export type Member = {
   id: string;
   name: string;
   membership: string;
-  status: 'Ativa' | 'Pendente' | 'Suspensa';
+  status: MemberStatus;
   branch: string;
   expiry: string;
   points: number;
@@ -15,7 +20,7 @@ export type Visit = {
   branch: string;
   enteredAt: string;
   exitedAt?: string;
-  status: 'verified' | 'pending';
+  status: VisitStatus;
   points: number;
 };
 
@@ -27,6 +32,24 @@ export type Exercise = {
   reps: string;
   previous?: string;
   suggested?: string;
+};
+
+export type WorkoutSet = {
+  id: string;
+  exerciseId: string;
+  setNumber: number;
+  weightKg: number;
+  reps: number;
+  completedAt: string;
+};
+
+export type WorkoutSession = {
+  id: string;
+  title: string;
+  programme: string;
+  startedAt: string;
+  completedAt?: string;
+  sets: WorkoutSet[];
 };
 
 export type GymClass = {
@@ -41,6 +64,14 @@ export type GymClass = {
   waitlist: number;
 };
 
+export type ClassReservation = {
+  id: string;
+  classId: string;
+  status: ReservationStatus;
+  createdAt: string;
+  waitlistPosition?: number;
+};
+
 export type Reward = {
   id: string;
   title: string;
@@ -53,6 +84,8 @@ export type LedgerItem = {
   date: string;
   title: string;
   points: number;
+  sourceType: 'visit' | 'workout' | 'class' | 'reward' | 'adjustment';
+  sourceId?: string;
 };
 
 export type Trainer = {
@@ -62,6 +95,30 @@ export type Trainer = {
   experience: string;
   languages: string[];
   nextSlot: string;
+};
+
+export type PTBooking = {
+  id: string;
+  trainerId: string;
+  slot: string;
+  status: 'confirmed' | 'cancelled';
+  createdAt: string;
+};
+
+export type SupportTicket = {
+  id: string;
+  category: string;
+  status: TicketStatus;
+  createdAt: string;
+  memberId: string;
+};
+
+export type VisitReport = {
+  id: string;
+  visitId?: string;
+  status: TicketStatus;
+  createdAt: string;
+  description: string;
 };
 
 export const member: Member = {
@@ -103,11 +160,11 @@ export const rewards: Reward[] = [
   { id: 'membership', title: 'Desconto na mensalidade', points: 2000, subtitle: 'Aplicado na próxima cobrança' },
 ];
 
-export const ledger: LedgerItem[] = [
-  { id: 'L1', date: '26 Ago', title: 'Visita ao ginásio', points: 50 },
-  { id: 'L2', date: '25 Ago', title: 'Treino Push concluído', points: 20 },
-  { id: 'L3', date: '23 Ago', title: 'Aula de Zumba', points: 30 },
-  { id: 'L4', date: '21 Ago', title: 'Batido proteico', points: -500 },
+export const initialLedger: LedgerItem[] = [
+  { id: 'L1', date: '26 Ago', title: 'Visita ao ginásio', points: 50, sourceType: 'visit', sourceId: 'V-260826' },
+  { id: 'L2', date: '25 Ago', title: 'Treino Push concluído', points: 20, sourceType: 'workout', sourceId: 'W-PUSH-250826' },
+  { id: 'L3', date: '23 Ago', title: 'Aula de Zumba', points: 30, sourceType: 'class', sourceId: 'zumba' },
+  { id: 'L4', date: '21 Ago', title: 'Batido proteico', points: -500, sourceType: 'reward', sourceId: 'shake' },
 ];
 
 export const trainers: Trainer[] = [
