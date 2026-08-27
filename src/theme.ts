@@ -8,7 +8,8 @@ export const colors = {
   accent: '#1F74BA',
   accentDark: '#145287',
   slate: '#92A3B8',
-  success: '#1F74BA',
+  success: '#2D8A57',
+  warning: '#B7791F',
   danger: '#C84D4D',
   info: '#145287',
 };
