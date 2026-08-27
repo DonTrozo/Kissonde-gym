@@ -79,6 +79,14 @@ export type Reward = {
   subtitle: string;
 };
 
+export type RewardRedemption = {
+  id: string;
+  rewardId: string;
+  points: number;
+  createdAt: string;
+  status: 'issued' | 'used' | 'cancelled';
+};
+
 export type LedgerItem = {
   id: string;
   date: string;
@@ -161,6 +169,7 @@ export const rewards: Reward[] = [
 ];
 
 export const initialLedger: LedgerItem[] = [
+  { id: 'L0', date: '20 Ago', title: 'Saldo anterior', points: 2850, sourceType: 'adjustment' },
   { id: 'L1', date: '26 Ago', title: 'Visita ao ginásio', points: 50, sourceType: 'visit', sourceId: 'V-260826' },
   { id: 'L2', date: '25 Ago', title: 'Treino Push concluído', points: 20, sourceType: 'workout', sourceId: 'W-PUSH-250826' },
   { id: 'L3', date: '23 Ago', title: 'Aula de Zumba', points: 30, sourceType: 'class', sourceId: 'zumba' },
