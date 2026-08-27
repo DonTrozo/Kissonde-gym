@@ -125,9 +125,9 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
 
   const logWorkoutSet = (exerciseId: string, setNumber: number, weightKg: number, reps: number) => {
     if (!Number.isFinite(weightKg) || !Number.isFinite(reps) || weightKg < 0 || reps <= 0) return;
-    const existingIndex = workoutSets.findIndex(set => set.exerciseId === exerciseId && set.setNumber === setNumber);
+    const existingSet = workoutSets.find(set => set.exerciseId === exerciseId && set.setNumber === setNumber);
     const nextSet: WorkoutSet = {
-      id: existingIndex >= 0 ? workoutSets[existingIndex].id : makeId('SET'),
+      id: existingSet?.id ?? makeId('SET'),
       exerciseId,
       setNumber,
       weightKg,
@@ -135,9 +135,9 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
       completedAt: nowIso(),
     };
     setWorkoutSets(current => {
-      const index = current.findIndex(set => set.exerciseId === exerciseId && set.setNumber === setNumber);
-      if (index < 0) return [...current, nextSet];
-      return current.map((set, i) => i === index ? nextSet : set);
+      const existing = current.some(set => set.exerciseId === exerciseId && set.setNumber === setNumber);
+      if (!existing) return [...current, nextSet];
+      return current.map(set => set.exerciseId === exerciseId && set.setNumber === setNumber ? nextSet : set);
     });
     setWorkoutCompleted(false);
   };
