@@ -1,0 +1,44 @@
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { rewards } from '../domain';
+import { colors } from '../theme';
+import { Card, Pill, PrimaryButton, ScreenTitle, SectionHeader } from '../ui';
+import { useAppState } from '../state';
+import { Shell, screenStyles as s } from './shared';
+
+export function RewardsScreen() {
+  const { points, ledger, redeemedRewards, redeem } = useAppState();
+
+  return <Shell>
+    <ScreenTitle eyebrow="Recompensas" title="Cada ponto tem uma origem." subtitle="O saldo e o histórico são atualizados sempre que ganhas ou gastas pontos." />
+    <Card style={styles.pointsHero}><Text style={s.accentLabel}>SALDO DISPONÍVEL</Text><Text style={styles.points}>{points.toLocaleString('pt-PT')}</Text><Text style={s.muted}>Pontos Kissonde</Text></Card>
+
+    <SectionHeader title="Escolher recompensa" />
+    {rewards.map(reward => {
+      const redeemed = redeemedRewards.includes(reward.id);
+      const canAfford = points >= reward.points;
+      return <Card key={reward.id} style={{ marginBottom: 10 }}>
+        <View style={s.between}><View style={{ flex: 1 }}><Text style={s.cardTitle}>{reward.title}</Text><Text style={s.muted}>{reward.subtitle}</Text></View><Text style={styles.rewardCost}>{reward.points}</Text></View>
+        {redeemed ? <View style={{ marginTop: 10 }}><Pill tone="success">Desbloqueada</Pill></View> : null}
+        <View style={{ height: 12 }} /><PrimaryButton disabled={redeemed || !canAfford} label={redeemed ? 'Já desbloqueada' : !canAfford ? `Faltam ${reward.points - points} pontos` : `Trocar por ${reward.points} pontos`} onPress={() => redeem(reward.id, reward.points)} />
+      </Card>;
+    })}
+
+    <SectionHeader title="Histórico de pontos" />
+    <Card>
+      {ledger.map((item, index) => <View key={item.id} style={[styles.ledgerRow, index === ledger.length - 1 && { borderBottomWidth: 0 }]}>
+        <View style={{ flex: 1 }}><Text style={styles.ledgerTitle}>{item.title}</Text><Text style={s.muted}>{item.date} · {item.id}</Text></View>
+        <Text style={[styles.ledgerPoints, { color: item.points >= 0 ? colors.success : colors.danger }]}>{item.points >= 0 ? '+' : ''}{item.points}</Text>
+      </View>)}
+    </Card>
+  </Shell>;
+}
+
+const styles = StyleSheet.create({
+  pointsHero: { alignItems: 'center', paddingVertical: 26 },
+  points: { color: colors.text, fontSize: 48, fontWeight: '900', letterSpacing: -2 },
+  rewardCost: { color: colors.accent, fontSize: 20, fontWeight: '900' },
+  ledgerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.border },
+  ledgerTitle: { color: colors.text, fontSize: 14, fontWeight: '800' },
+  ledgerPoints: { fontSize: 15, fontWeight: '900' },
+});
