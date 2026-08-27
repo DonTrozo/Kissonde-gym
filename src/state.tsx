@@ -5,6 +5,7 @@ import {
   ClassReservation,
   LedgerItem,
   PTBooking,
+  RewardRedemption,
   SupportTicket,
   VisitReport,
   WorkoutSet,
@@ -22,7 +23,7 @@ type AppState = {
   reservations: ClassReservation[];
   workoutSets: WorkoutSet[];
   workoutCompleted: boolean;
-  redeemedRewards: string[];
+  rewardRedemptions: RewardRedemption[];
   ptBookings: PTBooking[];
   supportTickets: SupportTicket[];
   visitReports: VisitReport[];
@@ -41,7 +42,7 @@ type AppState = {
 };
 
 const StateContext = createContext<AppState | null>(null);
-const STORAGE_KEY = 'kissonde-production-state-v1';
+const STORAGE_KEY = 'kissonde-production-state-v2';
 
 const nowIso = () => new Date().toISOString();
 const shortDate = () => new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short' }).format(new Date()).replace('.', '');
@@ -54,7 +55,7 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
   const [reservations, setReservations] = useState<ClassReservation[]>([]);
   const [workoutSets, setWorkoutSets] = useState<WorkoutSet[]>([]);
   const [workoutCompleted, setWorkoutCompleted] = useState(false);
-  const [redeemedRewards, setRedeemedRewards] = useState<string[]>([]);
+  const [rewardRedemptions, setRewardRedemptions] = useState<RewardRedemption[]>([]);
   const [ptBookings, setPTBookings] = useState<PTBooking[]>([]);
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
   const [visitReports, setVisitReports] = useState<VisitReport[]>([]);
@@ -65,13 +66,12 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
       if (!raw) return;
       try {
         const saved = JSON.parse(raw);
-        setSignedIn(saved.signedIn ?? false);
         setPoints(saved.points ?? member.points);
         setLedger(saved.ledger ?? initialLedger);
         setReservations(saved.reservations ?? []);
         setWorkoutSets(saved.workoutSets ?? []);
         setWorkoutCompleted(saved.workoutCompleted ?? false);
-        setRedeemedRewards(saved.redeemedRewards ?? []);
+        setRewardRedemptions(saved.rewardRedemptions ?? []);
         setPTBookings(saved.ptBookings ?? []);
         setSupportTickets(saved.supportTickets ?? []);
         setVisitReports(saved.visitReports ?? []);
@@ -84,18 +84,17 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!hydrated) return;
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
-      signedIn,
       points,
       ledger,
       reservations,
       workoutSets,
       workoutCompleted,
-      redeemedRewards,
+      rewardRedemptions,
       ptBookings,
       supportTickets,
       visitReports,
     }));
-  }, [signedIn, points, ledger, reservations, workoutSets, workoutCompleted, redeemedRewards, ptBookings, supportTickets, visitReports, hydrated]);
+  }, [points, ledger, reservations, workoutSets, workoutCompleted, rewardRedemptions, ptBookings, supportTickets, visitReports, hydrated]);
 
   const addLedgerEntry = (entry: Omit<LedgerItem, 'id' | 'date'>) => {
     const item: LedgerItem = { id: makeId('L'), date: shortDate(), ...entry };
@@ -156,16 +155,16 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
   };
 
   const redeem = (rewardId: string, cost: number) => {
-    if (redeemedRewards.includes(rewardId)) return;
     if (points < cost) {
       Alert.alert('Pontos insuficientes', 'Continua a treinar para desbloquear esta recompensa.');
       return;
     }
     const reward = rewards.find(item => item.id === rewardId);
+    const redemption: RewardRedemption = { id: makeId('RWD'), rewardId, points: cost, createdAt: nowIso(), status: 'issued' };
     setPoints(current => current - cost);
-    setRedeemedRewards(current => [...current, rewardId]);
-    addLedgerEntry({ title: reward?.title ?? 'Recompensa', points: -cost, sourceType: 'reward', sourceId: rewardId });
-    Alert.alert('Recompensa desbloqueada', 'A recompensa foi adicionada à tua conta.');
+    setRewardRedemptions(current => [redemption, ...current]);
+    addLedgerEntry({ title: reward?.title ?? 'Recompensa', points: -cost, sourceType: 'reward', sourceId: redemption.id });
+    Alert.alert('Recompensa desbloqueada', `Código ${redemption.id}. A recompensa foi adicionada à tua conta.`);
   };
 
   const bookTrainer = (trainerId: string, slot: string) => {
@@ -198,7 +197,7 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
     reservations,
     workoutSets,
     workoutCompleted,
-    redeemedRewards,
+    rewardRedemptions,
     ptBookings,
     supportTickets,
     visitReports,
@@ -214,7 +213,7 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
     cancelPTBooking,
     createSupportTicket,
     reportVisit,
-  }), [signedIn, hydrated, points, ledger, reservations, workoutSets, workoutCompleted, redeemedRewards, ptBookings, supportTickets, visitReports]);
+  }), [signedIn, hydrated, points, ledger, reservations, workoutSets, workoutCompleted, rewardRedemptions, ptBookings, supportTickets, visitReports]);
 
   return <StateContext.Provider value={value}>{children}</StateContext.Provider>;
 }
