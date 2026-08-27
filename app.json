@@ -2,17 +2,23 @@
   "expo": {
     "name": "Kissonde Gym",
     "slug": "kissonde-gym",
+    "scheme": "kissonde",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "backgroundColor": "#F7F8FA",
     "assetBundlePatterns": ["**/*"],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "ao.kissonde.gym"
+      "bundleIdentifier": "ao.kissonde.gym",
+      "buildNumber": "1"
     },
     "android": {
-      "package": "ao.kissonde.gym"
+      "package": "ao.kissonde.gym",
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro"
