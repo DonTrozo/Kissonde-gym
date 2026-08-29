@@ -41,10 +41,12 @@ function MainTabs() {
     headerShown: false,
     tabBarHideOnKeyboard: true,
     tabBarStyle: styles.tabBar,
-    tabBarActiveTintColor: colors.accent,
-    tabBarInactiveTintColor: colors.slate,
+    tabBarItemStyle: styles.tabItem,
+    tabBarActiveBackgroundColor: colors.accentSoft,
+    tabBarActiveTintColor: colors.accentDark,
+    tabBarInactiveTintColor: colors.slateDark,
     tabBarLabelStyle: styles.tabLabel,
-    tabBarIcon: ({ color, size }) => <Ionicons name={tabIcons[route.name] ?? 'ellipse'} size={size} color={color} />,
+    tabBarIcon: ({ color }) => <Ionicons name={tabIcons[route.name] ?? 'ellipse'} size={20} color={color} />,
   })}>
     <Tab.Screen name="Início" component={HomeScreen} />
     <Tab.Screen name="Acesso" component={AccessScreen} />
@@ -56,13 +58,14 @@ function MainTabs() {
 
 function RootNavigation() {
   const { signedIn, hydrated } = useAppState();
-  if (!hydrated) return <View style={styles.splash}><BrandLogo width={210} /></View>;
+  if (!hydrated) return <View style={styles.splash}><BrandLogo width={196} /></View>;
   if (!signedIn) return <LoginScreen />;
 
   return <NavigationContainer theme={navigationTheme}>
     <Stack.Navigator screenOptions={{
       headerStyle: { backgroundColor: colors.panel },
       headerTintColor: colors.text,
+      headerTitleStyle: { fontWeight: '900' },
       contentStyle: { backgroundColor: colors.bg },
       headerShadowVisible: false,
     }}>
@@ -88,11 +91,24 @@ const styles = StyleSheet.create({
   splash: { flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' },
   tabBar: {
     position: 'absolute',
-    height: 78,
-    paddingTop: 9,
-    paddingBottom: 10,
-    backgroundColor: '#FFFFFFF2',
-    borderTopColor: colors.border,
+    left: 14,
+    right: 14,
+    bottom: 12,
+    height: 72,
+    paddingHorizontal: 7,
+    paddingTop: 7,
+    paddingBottom: 7,
+    backgroundColor: colors.panel,
+    borderTopWidth: 0,
+    borderWidth: 1,
+    borderColor: '#E1E8EE',
+    borderRadius: 24,
+    shadowColor: '#173F5E',
+    shadowOpacity: .14,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
   },
-  tabLabel: { fontSize: 11, fontWeight: '700' },
+  tabItem: { borderRadius: 17, marginHorizontal: 2, paddingVertical: 2 },
+  tabLabel: { fontSize: 10, lineHeight: 13, fontWeight: '800', marginTop: 1 },
 });
