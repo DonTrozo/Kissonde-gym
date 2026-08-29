@@ -17,8 +17,8 @@ const rewardIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
 
 export function RewardsScreen() {
   const { points, ledger, rewardRedemptions, redeem } = useAppState();
-  const nextReward = rewards.find(reward => reward.points > points) ?? rewards[rewards.length - 1]!;
-  const progress = Math.min(100, Math.round((points / nextReward.points) * 100));
+  const nextReward = rewards.find(reward => reward.points > points);
+  const progress = nextReward ? Math.min(100, Math.round((points / nextReward.points) * 100)) : 100;
 
   return <Shell>
     <ScreenTitle eyebrow="Recompensas" title="Consistência que devolve valor." subtitle="O saldo, as trocas e o histórico ficam visíveis para que cada ponto seja explicável." />
@@ -28,7 +28,13 @@ export function RewardsScreen() {
       <Text style={styles.pointsEyebrow}>SALDO DISPONÍVEL</Text>
       <View style={styles.pointsRow}><Text style={styles.points}>{points.toLocaleString('pt-PT')}</Text><Text style={styles.pointsUnit}>PTS</Text></View>
       <Text style={styles.pointsNote}>Pontos Kissonde</Text>
-      <View style={styles.nextRewardRow}><View style={{ flex: 1 }}><Text style={styles.nextRewardLabel}>PRÓXIMO MARCO</Text><Text style={styles.nextRewardTitle}>{nextReward.title}</Text></View><Text style={styles.nextRewardValue}>{nextReward.points} pts</Text></View>
+      <View style={styles.nextRewardRow}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.nextRewardLabel}>{nextReward ? 'PRÓXIMO MARCO' : 'TODAS AS OPÇÕES'}</Text>
+          <Text style={styles.nextRewardTitle}>{nextReward ? nextReward.title : 'Tens saldo para qualquer recompensa'}</Text>
+        </View>
+        <Text style={styles.nextRewardValue}>{nextReward ? `${nextReward.points} pts` : '100%'}</Text>
+      </View>
       <View style={styles.heroProgress}><View style={[styles.heroProgressFill, { width: `${progress}%` as any }]} /></View>
     </View>
 
