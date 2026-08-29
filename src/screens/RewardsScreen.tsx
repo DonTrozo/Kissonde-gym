@@ -5,7 +5,7 @@ import { rewards } from '../domain';
 import { colors, radius } from '../theme';
 import { Card, Pill, PrimaryButton, ScreenTitle, SectionHeader } from '../ui';
 import { useAppState } from '../state';
-import { Shell, screenStyles as s } from './shared';
+import { Shell } from './shared';
 
 const rewardIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
   shake: 'nutrition-outline',
@@ -43,7 +43,7 @@ export function RewardsScreen() {
           <View style={{ flex: 1 }}><Text style={styles.rewardTitle}>{reward.title}</Text><Text style={styles.rewardSubtitle}>{reward.subtitle}</Text></View>
           <View style={styles.costPill}><Text style={styles.costValue}>{reward.points}</Text><Text style={styles.costLabel}>PTS</Text></View>
         </View>
-        {issued > 0 ? <View style={styles.issuedRow}><Ionicons name="checkmark-circle" size={17} color={colors.success} /><Text style={styles.issuedText}>{issued} recompensa{issued > 1 ? 's' : ''} disponível{issued > 1 ? 'is' : ''}</Text></View> : null}
+        {issued > 0 ? <View style={styles.issuedRow}><Ionicons name="checkmark-circle" size={17} color={colors.success} /><Text style={styles.issuedText}>{issued} recompensa{issued > 1 ? 's' : ''} {issued > 1 ? 'disponíveis' : 'disponível'}</Text></View> : null}
         {!canAfford ? <View style={styles.rewardProgress}><View style={[styles.rewardProgressFill, { width: `${Math.min(100, Math.round((points / reward.points) * 100))}%` as any }]} /></View> : null}
         <View style={{ height: 11 }} /><PrimaryButton disabled={!canAfford} label={!canAfford ? `Faltam ${missing} pontos` : 'Trocar recompensa'} onPress={() => redeem(reward.id, reward.points)} />
       </Card>;
