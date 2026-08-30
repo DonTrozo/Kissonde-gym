@@ -29,7 +29,7 @@ import {
   RewardsScreen,
   SupportScreen,
   TimerScreen,
-  TrainScreen,
+  TrainingHubScreen,
   WorkoutHistoryScreen,
 } from './src/screens/index';
 
@@ -72,7 +72,6 @@ const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
   'Início': 'home',
   'Acesso': 'qr-code',
   'Treinar': 'barbell',
-  'Timer': 'timer',
   'Aulas': 'calendar',
   'Prémios': 'gift',
 };
@@ -87,12 +86,11 @@ function MainTabs() {
     tabBarActiveTintColor: colors.accentDark,
     tabBarInactiveTintColor: colors.slateDark,
     tabBarLabelStyle: styles.tabLabel,
-    tabBarIcon: ({ color }) => <Ionicons name={tabIcons[route.name] ?? 'ellipse'} size={18} color={color} />,
+    tabBarIcon: ({ color }) => <Ionicons name={tabIcons[route.name] ?? 'ellipse'} size={19} color={color} />,
   })}>
     <Tab.Screen name="Início" component={HomeScreen} />
     <Tab.Screen name="Acesso" component={AccessScreen} />
-    <Tab.Screen name="Treinar" component={TrainScreen} />
-    <Tab.Screen name="Timer" component={TimerScreen} />
+    <Tab.Screen name="Treinar" component={TrainingHubScreen} />
     <Tab.Screen name="Aulas" component={ClassesScreen} />
     <Tab.Screen name="Prémios" component={RewardsScreen} />
   </Tab.Navigator>;
@@ -107,6 +105,7 @@ function RootNavigation() {
   return <NavigationContainer theme={navigationTheme}>
     <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: colors.panel }, headerTintColor: colors.text, headerTitleStyle: { fontWeight: '900' }, contentStyle: { backgroundColor: colors.bg }, headerShadowVisible: false }}>
       <Stack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
+      <Stack.Screen name="Timer" component={TimerScreen} options={{ title: 'Kissonde Timer' }} />
       <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Perfil' }} />
       <Stack.Screen name="Support" component={SupportScreen} options={{ title: 'Ajuda' }} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notificações' }} />
@@ -137,7 +136,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   splash: { flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' },
-  tabBar: { height: 68, paddingHorizontal: 5, paddingTop: 6, paddingBottom: 7, backgroundColor: colors.panel, borderTopWidth: 1, borderTopColor: '#E1E8EE', shadowColor: '#173F5E', shadowOpacity: .08, shadowRadius: 12, shadowOffset: { width: 0, height: -3 }, elevation: 6 },
-  tabItem: { borderRadius: 13, marginHorizontal: 1, paddingVertical: 1 },
-  tabLabel: { fontSize: 9, lineHeight: 12, fontWeight: '800', marginTop: 0 },
+  tabBar: { height: 68, paddingHorizontal: 7, paddingTop: 6, paddingBottom: 7, backgroundColor: colors.panel, borderTopWidth: 1, borderTopColor: '#E1E8EE', shadowColor: '#173F5E', shadowOpacity: .08, shadowRadius: 12, shadowOffset: { width: 0, height: -3 }, elevation: 6 },
+  tabItem: { borderRadius: 14, marginHorizontal: 2, paddingVertical: 1 },
+  tabLabel: { fontSize: 10, lineHeight: 13, fontWeight: '800', marginTop: 0 },
 });
