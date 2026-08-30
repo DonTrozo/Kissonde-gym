@@ -52,6 +52,8 @@ export type WorkoutSession = {
   sets: WorkoutSet[];
 };
 
+export type ClassCategory = 'Cycling' | 'HIIT' | 'Dance' | 'Strength' | 'Mobility' | 'Functional';
+
 export type GymClass = {
   id: string;
   name: string;
@@ -59,6 +61,7 @@ export type GymClass = {
   time: string;
   duration: string;
   difficulty: string;
+  category: ClassCategory;
   capacity: number;
   booked: number;
   waitlist: number;
@@ -103,6 +106,8 @@ export type Trainer = {
   experience: string;
   languages: string[];
   nextSlot: string;
+  rating: number;
+  reviews: number;
 };
 
 export type PTBooking = {
@@ -152,12 +157,21 @@ export const exercises: Exercise[] = [
   { id: 'press', name: 'Desenvolvimento de ombros', target: 'Ombros', sets: 3, reps: '8', previous: '45 kg × 8', suggested: '47.5 kg × 8' },
   { id: 'fly', name: 'Crossover no cabo', target: 'Peito', sets: 3, reps: '12', previous: '20 kg × 12', suggested: '22.5 kg × 12' },
   { id: 'triceps', name: 'Tríceps na polia', target: 'Tríceps', sets: 3, reps: '12', previous: '30 kg × 12', suggested: '32.5 kg × 12' },
+  { id: 'squat', name: 'Agachamento com barra', target: 'Pernas', sets: 4, reps: '6', previous: '90 kg × 6', suggested: '92.5 kg × 6' },
+  { id: 'legpress', name: 'Leg press', target: 'Pernas', sets: 3, reps: '10', previous: '170 kg × 10', suggested: '180 kg × 10' },
+  { id: 'row', name: 'Remada sentada', target: 'Costas', sets: 4, reps: '10', previous: '65 kg × 10', suggested: '67.5 kg × 10' },
+  { id: 'rdl', name: 'Peso morto romeno', target: 'Posterior', sets: 3, reps: '8', previous: '80 kg × 8', suggested: '85 kg × 8' },
+  { id: 'hipthrust', name: 'Hip thrust', target: 'Glúteos', sets: 4, reps: '10', previous: '100 kg × 10', suggested: '105 kg × 10' },
+  { id: 'plank', name: 'Prancha', target: 'Core', sets: 3, reps: '45 s', previous: '40 s', suggested: '45 s' },
 ];
 
 export const classes: GymClass[] = [
-  { id: 'spin', name: 'Spinning', instructor: 'Ana Silva', time: '18:00', duration: '45 min', difficulty: 'Intermédio', capacity: 20, booked: 20, waitlist: 2 },
-  { id: 'hiit', name: 'HIIT', instructor: 'Carlos Manuel', time: '19:00', duration: '40 min', difficulty: 'Avançado', capacity: 18, booked: 14, waitlist: 0 },
-  { id: 'zumba', name: 'Zumba', instructor: 'Marta João', time: '20:00', duration: '50 min', difficulty: 'Todos', capacity: 30, booked: 21, waitlist: 0 },
+  { id: 'spin', name: 'Spinning', instructor: 'Ana Silva', time: '18:00', duration: '45 min', difficulty: 'Intermédio', category: 'Cycling', capacity: 20, booked: 20, waitlist: 2 },
+  { id: 'hiit', name: 'HIIT', instructor: 'Carlos Manuel', time: '19:00', duration: '40 min', difficulty: 'Avançado', category: 'HIIT', capacity: 18, booked: 14, waitlist: 0 },
+  { id: 'zumba', name: 'Zumba', instructor: 'Marta João', time: '20:00', duration: '50 min', difficulty: 'Todos', category: 'Dance', capacity: 30, booked: 21, waitlist: 0 },
+  { id: 'strength', name: 'Strength Lab', instructor: 'Carlos Manuel', time: '07:00', duration: '50 min', difficulty: 'Intermédio', category: 'Strength', capacity: 16, booked: 11, waitlist: 0 },
+  { id: 'mobility', name: 'Mobilidade', instructor: 'Marta João', time: '10:00', duration: '35 min', difficulty: 'Todos', category: 'Mobility', capacity: 18, booked: 8, waitlist: 0 },
+  { id: 'functional', name: 'Funcional', instructor: 'Ana Silva', time: '17:00', duration: '45 min', difficulty: 'Intermédio', category: 'Functional', capacity: 22, booked: 17, waitlist: 0 },
 ];
 
 export const rewards: Reward[] = [
@@ -177,6 +191,7 @@ export const initialLedger: LedgerItem[] = [
 ];
 
 export const trainers: Trainer[] = [
-  { id: 'T1', name: 'Carlos Manuel', specialties: ['Hipertrofia', 'Força', 'Transformação corporal'], experience: '8 anos', languages: ['Português', 'Inglês'], nextSlot: 'Hoje, 17:30' },
-  { id: 'T2', name: 'Marta João', specialties: ['Perda de peso', 'Funcional', 'Mobilidade'], experience: '6 anos', languages: ['Português'], nextSlot: 'Amanhã, 09:00' },
+  { id: 'T1', name: 'Carlos Manuel', specialties: ['Hipertrofia', 'Força', 'Transformação corporal'], experience: '8 anos', languages: ['Português', 'Inglês'], nextSlot: 'Hoje, 17:30', rating: 4.9, reviews: 128 },
+  { id: 'T2', name: 'Marta João', specialties: ['Perda de peso', 'Funcional', 'Mobilidade'], experience: '6 anos', languages: ['Português'], nextSlot: 'Amanhã, 09:00', rating: 4.8, reviews: 94 },
+  { id: 'T3', name: 'Ana Silva', specialties: ['Cycling', 'Condicionamento', 'HIIT'], experience: '7 anos', languages: ['Português', 'Inglês'], nextSlot: 'Amanhã, 16:00', rating: 4.9, reviews: 112 },
 ];
