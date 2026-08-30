@@ -25,6 +25,7 @@ type ActiveTimer = {
   restSeconds: number;
   prepareSeconds: number;
   label?: string;
+  laps: number[];
 };
 
 type TimerContextValue = {
@@ -41,12 +42,13 @@ type TimerContextValue = {
   reset: () => void;
   skipPhase: () => void;
   addSeconds: (seconds: number) => void;
+  addLap: () => void;
   savePreset: (preset: Omit<TimerPreset, 'id'>) => void;
   deletePreset: (id: string) => void;
   updateSettings: (patch: Partial<TimerSettings>) => void;
 };
 
-const STORAGE_KEY = 'kissonde-training-timer-v1';
+const STORAGE_KEY = 'kissonde-training-timer-v2';
 const KEEP_AWAKE_TAG = 'kissonde-training-timer';
 const defaultPresets: TimerPreset[] = [
   { id: '30-30', label: '30 / 30', workSeconds: 30, restSeconds: 30, rounds: 4, prepareSeconds: 5 },
@@ -55,7 +57,7 @@ const defaultPresets: TimerPreset[] = [
   { id: '60-30', label: '60 / 30', workSeconds: 60, restSeconds: 30, rounds: 4, prepareSeconds: 5 },
 ];
 const defaultSettings: TimerSettings = { soundEnabled: true, vibrationEnabled: true, keepAwake: true, defaultRestSeconds: 90, autoRestAfterSet: false };
-const idleTimer: ActiveTimer = { mode: 'interval', running: false, phase: 'complete', round: 0, totalRounds: 0, phaseDurationSeconds: 0, remainingSeconds: 0, elapsedSeconds: 0, workSeconds: 30, restSeconds: 30, prepareSeconds: 5 };
+const idleTimer: ActiveTimer = { mode: 'interval', running: false, phase: 'complete', round: 0, totalRounds: 0, phaseDurationSeconds: 0, remainingSeconds: 0, elapsedSeconds: 0, workSeconds: 30, restSeconds: 30, prepareSeconds: 5, laps: [] };
 
 const TimerContext = createContext<TimerContextValue | null>(null);
 
@@ -90,9 +92,9 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         const saved = JSON.parse(raw);
         setPresets(saved.presets?.length ? saved.presets : defaultPresets);
         setSettings({ ...defaultSettings, ...(saved.settings ?? {}) });
-        if (saved.active) setActive(reconcile(saved.active));
+        if (saved.active) setActive(reconcile({ ...saved.active, laps: saved.active.laps ?? [] }));
       } catch {
-        // Invalid preview state falls back to safe timer defaults.
+        // Invalid local state falls back to safe timer defaults.
       }
     }).finally(() => setHydrated(true));
   }, []);
@@ -121,7 +123,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         const remaining = Math.max(0, Math.ceil((current.targetTimestamp - Date.now()) / 1000));
         if (remaining > 0) return remaining === current.remainingSeconds ? current : { ...current, remainingSeconds: remaining };
         playCue(settingsRef.current.soundEnabled, settingsRef.current.vibrationEnabled);
-        return advancePhase(current);
+        return reconcile(current);
       });
     };
     tick();
@@ -136,20 +138,20 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     const rounds = Math.max(1, Math.min(99, Math.round(input.rounds)));
     const phase: IntervalPhase = prepareSeconds > 0 ? 'prepare' : 'work';
     const duration = prepareSeconds > 0 ? prepareSeconds : workSeconds;
-    setActive({ mode: 'interval', running: true, phase, round: 1, totalRounds: rounds, phaseDurationSeconds: duration, remainingSeconds: duration, targetTimestamp: Date.now() + duration * 1000, elapsedSeconds: 0, workSeconds, restSeconds, prepareSeconds, label: input.label });
+    setActive({ mode: 'interval', running: true, phase, round: 1, totalRounds: rounds, phaseDurationSeconds: duration, remainingSeconds: duration, targetTimestamp: Date.now() + duration * 1000, elapsedSeconds: 0, workSeconds, restSeconds, prepareSeconds, label: input.label, laps: [] });
   };
 
   const startRest = (seconds = settings.defaultRestSeconds, label?: string) => {
     const duration = clampSeconds(seconds);
-    setActive({ mode: 'rest', running: true, phase: 'rest', round: 1, totalRounds: 1, phaseDurationSeconds: duration, remainingSeconds: duration, targetTimestamp: Date.now() + duration * 1000, elapsedSeconds: 0, workSeconds: 0, restSeconds: duration, prepareSeconds: 0, label });
+    setActive({ mode: 'rest', running: true, phase: 'rest', round: 1, totalRounds: 1, phaseDurationSeconds: duration, remainingSeconds: duration, targetTimestamp: Date.now() + duration * 1000, elapsedSeconds: 0, workSeconds: 0, restSeconds: duration, prepareSeconds: 0, label, laps: [] });
   };
 
   const startCountdown = (seconds: number, label?: string) => {
     const duration = clampSeconds(seconds);
-    setActive({ mode: 'countdown', running: true, phase: 'work', round: 1, totalRounds: 1, phaseDurationSeconds: duration, remainingSeconds: duration, targetTimestamp: Date.now() + duration * 1000, elapsedSeconds: 0, workSeconds: duration, restSeconds: 0, prepareSeconds: 0, label });
+    setActive({ mode: 'countdown', running: true, phase: 'work', round: 1, totalRounds: 1, phaseDurationSeconds: duration, remainingSeconds: duration, targetTimestamp: Date.now() + duration * 1000, elapsedSeconds: 0, workSeconds: duration, restSeconds: 0, prepareSeconds: 0, label, laps: [] });
   };
 
-  const startStopwatch = () => setActive({ mode: 'stopwatch', running: true, phase: 'work', round: 1, totalRounds: 1, phaseDurationSeconds: 0, remainingSeconds: 0, elapsedSeconds: 0, startedAt: Date.now(), workSeconds: 0, restSeconds: 0, prepareSeconds: 0 });
+  const startStopwatch = () => setActive({ mode: 'stopwatch', running: true, phase: 'work', round: 1, totalRounds: 1, phaseDurationSeconds: 0, remainingSeconds: 0, elapsedSeconds: 0, startedAt: Date.now(), workSeconds: 0, restSeconds: 0, prepareSeconds: 0, laps: [] });
 
   const pause = () => setActive(current => {
     if (!current.running) return current;
@@ -171,12 +173,13 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     const remainingSeconds = Math.max(0, current.remainingSeconds + seconds);
     return { ...current, remainingSeconds, targetTimestamp: current.running ? Date.now() + remainingSeconds * 1000 : current.targetTimestamp };
   });
+  const addLap = () => setActive(current => current.mode === 'stopwatch' && current.elapsedSeconds > 0 ? { ...current, laps: [...current.laps, current.elapsedSeconds] } : current);
 
   const savePreset = (preset: Omit<TimerPreset, 'id'>) => setPresets(current => [...current, { ...preset, id: makeId('PRESET') }]);
   const deletePreset = (id: string) => setPresets(current => defaultPresets.some(item => item.id === id) ? current : current.filter(item => item.id !== id));
   const updateSettings = (patch: Partial<TimerSettings>) => setSettings(current => ({ ...current, ...patch }));
 
-  const value = useMemo<TimerContextValue>(() => ({ hydrated, active, presets, settings, startInterval, startRest, startCountdown, startStopwatch, pause, resume, reset, skipPhase, addSeconds, savePreset, deletePreset, updateSettings }), [hydrated, active, presets, settings]);
+  const value = useMemo<TimerContextValue>(() => ({ hydrated, active, presets, settings, startInterval, startRest, startCountdown, startStopwatch, pause, resume, reset, skipPhase, addSeconds, addLap, savePreset, deletePreset, updateSettings }), [hydrated, active, presets, settings]);
   return <TimerContext.Provider value={value}>{children}</TimerContext.Provider>;
 }
 
