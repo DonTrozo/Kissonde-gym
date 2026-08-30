@@ -1,4 +1,4 @@
-name: Typecheck
+name: Validate
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  typecheck:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,3 +20,5 @@ jobs:
         run: npm install
       - name: Typecheck
         run: npm run typecheck
+      - name: Build web production bundle
+        run: npm run build:web
