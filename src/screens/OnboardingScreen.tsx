@@ -11,6 +11,18 @@ import { Shell } from './shared';
 const goals: FitnessGoal[] = ['muscle', 'weight-loss', 'strength', 'fitness', 'health'];
 const experiences: ExperienceLevel[] = ['beginner', 'intermediate', 'advanced'];
 const dayOptions = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+const goalIcons: Record<FitnessGoal, keyof typeof Ionicons.glyphMap> = {
+  muscle: 'barbell-outline',
+  'weight-loss': 'flame-outline',
+  strength: 'trending-up-outline',
+  fitness: 'heart-outline',
+  health: 'leaf-outline',
+};
+const experienceIcons: Record<ExperienceLevel, keyof typeof Ionicons.glyphMap> = {
+  beginner: 'walk-outline',
+  intermediate: 'fitness-outline',
+  advanced: 'flash-outline',
+};
 
 export function OnboardingScreen() {
   const { completeOnboarding } = useAppState();
@@ -78,11 +90,11 @@ function Summary({ label, value }: { label: string; value: string }) {
 }
 
 function goalIcon(goal: FitnessGoal): keyof typeof Ionicons.glyphMap {
-  return { muscle: 'barbell-outline', 'weight-loss': 'flame-outline', strength: 'trending-up-outline', fitness: 'heart-outline', health: 'leaf-outline' }[goal];
+  return goalIcons[goal];
 }
 
 function experienceIcon(level: ExperienceLevel): keyof typeof Ionicons.glyphMap {
-  return { beginner: 'walk-outline', intermediate: 'fitness-outline', advanced: 'flash-outline' }[level];
+  return experienceIcons[level];
 }
 
 const styles = StyleSheet.create({
