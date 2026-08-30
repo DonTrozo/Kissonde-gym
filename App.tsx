@@ -36,34 +36,45 @@ import {
 function installWebRuntimeStyles() {
   if (Platform.OS !== 'web') return;
   const doc = (globalThis as any).document;
-  if (!doc || doc.getElementById('kissonde-web-runtime')) return;
+  const win = (globalThis as any).window;
+  if (!doc || !win || doc.getElementById('kissonde-web-runtime')) return;
+
   const style = doc.createElement('style');
   style.id = 'kissonde-web-runtime';
   style.textContent = `
-    html, body, #root {
+    html, body {
       width: 100%;
       height: 100%;
-      min-height: 100%;
       margin: 0;
       padding: 0;
+      overflow: hidden !important;
+      overscroll-behavior: none;
+      background: #F4F7FA;
     }
-    @supports (height: 100dvh) {
-      html, body, #root {
-        height: 100dvh;
-        min-height: 100dvh;
-      }
-    }
-    body, #root {
-      overflow: hidden;
+    body {
+      position: fixed;
+      inset: 0;
     }
     #root {
-      display: flex;
-      flex-direction: column;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      height: var(--kissonde-viewport-height, 100dvh) !important;
+      min-height: 0 !important;
+      max-height: var(--kissonde-viewport-height, 100dvh) !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
     }
     #root > div {
-      flex: 1 1 auto;
-      min-height: 0;
-      height: 100%;
+      flex: 1 1 0% !important;
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
     }
     input, textarea {
       box-sizing: border-box !important;
@@ -84,6 +95,19 @@ function installWebRuntimeStyles() {
     }
   `;
   doc.head.appendChild(style);
+
+  const syncViewportHeight = () => {
+    const viewportHeight = win.visualViewport?.height ?? win.innerHeight;
+    if (Number.isFinite(viewportHeight) && viewportHeight > 0) {
+      doc.documentElement.style.setProperty('--kissonde-viewport-height', `${Math.round(viewportHeight)}px`);
+    }
+  };
+
+  syncViewportHeight();
+  win.addEventListener('resize', syncViewportHeight, { passive: true });
+  win.addEventListener('orientationchange', syncViewportHeight, { passive: true });
+  win.visualViewport?.addEventListener('resize', syncViewportHeight, { passive: true });
+  win.visualViewport?.addEventListener('scroll', syncViewportHeight, { passive: true });
 }
 
 installWebRuntimeStyles();
@@ -158,7 +182,7 @@ function RootNavigation() {
 
 export default function App() {
   return <ErrorBoundary>
-    <SafeAreaProvider>
+    <SafeAreaProvider style={styles.appRoot}>
       <StateProvider>
         <TimerProvider>
           <TimerAutoRestBridge />
@@ -171,6 +195,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  appRoot: { flex: 1, minHeight: 0, backgroundColor: colors.bg },
   splash: { flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' },
   tabBar: { height: 68, paddingHorizontal: 7, paddingTop: 6, paddingBottom: 7, backgroundColor: colors.panel, borderTopWidth: 1, borderTopColor: '#E1E8EE', shadowColor: '#173F5E', shadowOpacity: .08, shadowRadius: 12, shadowOffset: { width: 0, height: -3 }, elevation: 6 },
   tabItem: { borderRadius: 14, marginHorizontal: 2, paddingVertical: 1 },
