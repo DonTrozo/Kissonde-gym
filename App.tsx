@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
@@ -11,6 +11,34 @@ import { ErrorBoundary } from './src/ErrorBoundary';
 import { colors } from './src/theme';
 import { StateProvider, useAppState } from './src/state';
 import { AccessScreen, ClassesScreen, HomeScreen, LoginScreen, ProfileScreen, RewardsScreen, SupportScreen, TrainScreen } from './src/screens/index';
+
+function installWebInputBoxModelFix() {
+  if (Platform.OS !== 'web') return;
+
+  const doc = (globalThis as any).document;
+  if (!doc || doc.getElementById('kissonde-input-box-model')) return;
+
+  const style = doc.createElement('style');
+  style.id = 'kissonde-input-box-model';
+  style.textContent = `
+    input,
+    textarea {
+      box-sizing: border-box !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+    }
+
+    input[type="text"],
+    input[inputmode="decimal"],
+    input[inputmode="numeric"] {
+      overflow: hidden !important;
+      text-overflow: clip !important;
+    }
+  `;
+  doc.head.appendChild(style);
+}
+
+installWebInputBoxModelFix();
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
