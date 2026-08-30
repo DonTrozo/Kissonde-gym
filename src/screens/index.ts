@@ -15,4 +15,5 @@ export { RewardsScreen } from './RewardsScreen';
 export { SupportScreen } from './SupportScreen';
 export { TimerScreen } from './TimerScreen';
 export { TrainScreen } from './TrainScreen';
+export { TrainingHubScreen } from './TrainingHubScreen';
 export { WorkoutHistoryScreen } from './WorkoutHistoryScreen';
