@@ -14,10 +14,20 @@ import {
   member,
   rewards,
 } from './domain';
+import { MemberPreferences, programmeForGoal } from './product';
+
+export type MembershipRequest = {
+  id: string;
+  type: 'freeze' | 'upgrade' | 'renewal' | 'invoice';
+  status: 'submitted' | 'reviewing' | 'completed';
+  createdAt: string;
+};
 
 type AppState = {
   signedIn: boolean;
   hydrated: boolean;
+  onboardingComplete: boolean;
+  preferences: MemberPreferences;
   points: number;
   ledger: LedgerItem[];
   reservations: ClassReservation[];
@@ -27,10 +37,21 @@ type AppState = {
   ptBookings: PTBooking[];
   supportTickets: SupportTicket[];
   visitReports: VisitReport[];
+  favoriteClassIds: string[];
+  instructorRatings: Record<string, number>;
+  joinedChallenges: string[];
+  connectedIntegrations: string[];
+  readNotificationIds: string[];
+  membershipRequests: MembershipRequest[];
+  referralCode: string;
   signIn: () => void;
   signOut: () => void;
+  completeOnboarding: (preferences: MemberPreferences) => void;
+  resetOnboarding: () => void;
   reserveClass: (classId: string) => void;
   cancelReservation: (classId: string) => void;
+  toggleFavoriteClass: (classId: string) => void;
+  rateInstructor: (instructor: string, rating: number) => void;
   logWorkoutSet: (exerciseId: string, setNumber: number, weightKg: number, reps: number) => void;
   removeWorkoutSet: (setId: string) => void;
   completeWorkout: () => void;
@@ -39,10 +60,23 @@ type AppState = {
   cancelPTBooking: (bookingId: string) => void;
   createSupportTicket: (category: string) => string;
   reportVisit: (description: string, visitId?: string) => string;
+  joinChallenge: (challengeId: string) => void;
+  toggleIntegration: (providerId: string) => void;
+  markNotificationRead: (notificationId: string) => void;
+  markAllNotificationsRead: (notificationIds: string[]) => void;
+  requestMembershipAction: (type: MembershipRequest['type']) => string;
 };
 
 const StateContext = createContext<AppState | null>(null);
-const STORAGE_KEY = 'kissonde-production-state-v3';
+const STORAGE_KEY = 'kissonde-production-state-v5';
+
+const defaultPreferences: MemberPreferences = {
+  goal: 'muscle',
+  experience: 'intermediate',
+  trainingDays: 4,
+  preferredDays: ['Seg', 'Ter', 'Qui', 'Sáb'],
+  wantsProgramme: true,
+};
 
 const nowIso = () => new Date().toISOString();
 const todayKey = () => new Date().toISOString().slice(0, 10);
@@ -51,6 +85,8 @@ const makeId = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toSt
 
 export function StateProvider({ children }: { children: React.ReactNode }) {
   const [signedIn, setSignedIn] = useState(false);
+  const [onboardingComplete, setOnboardingComplete] = useState(false);
+  const [preferences, setPreferences] = useState<MemberPreferences>(defaultPreferences);
   const [points, setPoints] = useState(member.points);
   const [ledger, setLedger] = useState<LedgerItem[]>(initialLedger);
   const [reservations, setReservations] = useState<ClassReservation[]>([]);
@@ -61,6 +97,12 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
   const [ptBookings, setPTBookings] = useState<PTBooking[]>([]);
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
   const [visitReports, setVisitReports] = useState<VisitReport[]>([]);
+  const [favoriteClassIds, setFavoriteClassIds] = useState<string[]>([]);
+  const [instructorRatings, setInstructorRatings] = useState<Record<string, number>>({});
+  const [joinedChallenges, setJoinedChallenges] = useState<string[]>([]);
+  const [connectedIntegrations, setConnectedIntegrations] = useState<string[]>([]);
+  const [readNotificationIds, setReadNotificationIds] = useState<string[]>([]);
+  const [membershipRequests, setMembershipRequests] = useState<MembershipRequest[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -68,6 +110,8 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
       if (!raw) return;
       try {
         const saved = JSON.parse(raw);
+        setOnboardingComplete(saved.onboardingComplete ?? false);
+        setPreferences(saved.preferences ?? defaultPreferences);
         setPoints(saved.points ?? member.points);
         setLedger(saved.ledger ?? initialLedger);
         setReservations(saved.reservations ?? []);
@@ -83,8 +127,14 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
         setPTBookings(saved.ptBookings ?? []);
         setSupportTickets(saved.supportTickets ?? []);
         setVisitReports(saved.visitReports ?? []);
+        setFavoriteClassIds(saved.favoriteClassIds ?? []);
+        setInstructorRatings(saved.instructorRatings ?? {});
+        setJoinedChallenges(saved.joinedChallenges ?? []);
+        setConnectedIntegrations(saved.connectedIntegrations ?? []);
+        setReadNotificationIds(saved.readNotificationIds ?? []);
+        setMembershipRequests(saved.membershipRequests ?? []);
       } catch {
-        // Corrupt local state should never block member access; fall back to safe defaults.
+        // Corrupt local preview state falls back to safe defaults.
       }
     }).finally(() => setHydrated(true));
   }, []);
@@ -92,6 +142,8 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!hydrated) return;
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+      onboardingComplete,
+      preferences,
       points,
       ledger,
       reservations,
@@ -102,8 +154,14 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
       ptBookings,
       supportTickets,
       visitReports,
+      favoriteClassIds,
+      instructorRatings,
+      joinedChallenges,
+      connectedIntegrations,
+      readNotificationIds,
+      membershipRequests,
     }));
-  }, [points, ledger, reservations, workoutSets, workoutCompleted, workoutDate, rewardRedemptions, ptBookings, supportTickets, visitReports, hydrated]);
+  }, [onboardingComplete, preferences, points, ledger, reservations, workoutSets, workoutCompleted, workoutDate, rewardRedemptions, ptBookings, supportTickets, visitReports, favoriteClassIds, instructorRatings, joinedChallenges, connectedIntegrations, readNotificationIds, membershipRequests, hydrated]);
 
   const ensureCurrentWorkoutDay = () => {
     const currentDay = todayKey();
@@ -139,6 +197,15 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
     setReservations(current => current.map(item => item.classId === classId && item.status !== 'cancelled' ? { ...item, status: 'cancelled' } : item));
   };
 
+  const toggleFavoriteClass = (classId: string) => {
+    setFavoriteClassIds(current => current.includes(classId) ? current.filter(id => id !== classId) : [...current, classId]);
+  };
+
+  const rateInstructor = (instructor: string, rating: number) => {
+    const safeRating = Math.max(1, Math.min(5, Math.round(rating)));
+    setInstructorRatings(current => ({ ...current, [instructor]: safeRating }));
+  };
+
   const logWorkoutSet = (exerciseId: string, setNumber: number, weightKg: number, reps: number) => {
     ensureCurrentWorkoutDay();
     if (!Number.isFinite(weightKg) || !Number.isFinite(reps) || weightKg < 0 || reps <= 0) return;
@@ -168,9 +235,10 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
   const completeWorkout = () => {
     ensureCurrentWorkoutDay();
     if (workoutCompleted || workoutSets.length === 0) return;
+    const programme = programmeForGoal(preferences.goal);
     setWorkoutCompleted(true);
     setPoints(current => current + 20);
-    addLedgerEntry({ title: 'Treino Push concluído', points: 20, sourceType: 'workout', sourceId: makeId('W') });
+    addLedgerEntry({ title: `${programme.dayTitle} concluído`, points: 20, sourceType: 'workout', sourceId: makeId('W') });
     Alert.alert('Treino guardado', 'A sessão e os teus dados de carga ficaram registados.');
   };
 
@@ -209,9 +277,33 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
     return id;
   };
 
+  const joinChallenge = (challengeId: string) => {
+    setJoinedChallenges(current => current.includes(challengeId) ? current : [...current, challengeId]);
+  };
+
+  const toggleIntegration = (providerId: string) => {
+    setConnectedIntegrations(current => current.includes(providerId) ? current.filter(id => id !== providerId) : [...current, providerId]);
+  };
+
+  const markNotificationRead = (notificationId: string) => {
+    setReadNotificationIds(current => current.includes(notificationId) ? current : [...current, notificationId]);
+  };
+
+  const markAllNotificationsRead = (notificationIds: string[]) => {
+    setReadNotificationIds(current => Array.from(new Set([...current, ...notificationIds])));
+  };
+
+  const requestMembershipAction = (type: MembershipRequest['type']) => {
+    const id = makeId('MEM');
+    setMembershipRequests(current => [{ id, type, status: 'submitted', createdAt: nowIso() }, ...current]);
+    return id;
+  };
+
   const value = useMemo<AppState>(() => ({
     signedIn,
     hydrated,
+    onboardingComplete,
+    preferences,
     points,
     ledger,
     reservations,
@@ -221,10 +313,21 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
     ptBookings,
     supportTickets,
     visitReports,
+    favoriteClassIds,
+    instructorRatings,
+    joinedChallenges,
+    connectedIntegrations,
+    readNotificationIds,
+    membershipRequests,
+    referralCode: `KSG-${member.id.replace(/\D/g, '').slice(-4)}-AMIGO`,
     signIn: () => setSignedIn(true),
     signOut: () => setSignedIn(false),
+    completeOnboarding: nextPreferences => { setPreferences(nextPreferences); setOnboardingComplete(true); },
+    resetOnboarding: () => setOnboardingComplete(false),
     reserveClass,
     cancelReservation,
+    toggleFavoriteClass,
+    rateInstructor,
     logWorkoutSet,
     removeWorkoutSet,
     completeWorkout,
@@ -233,7 +336,12 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
     cancelPTBooking,
     createSupportTicket,
     reportVisit,
-  }), [signedIn, hydrated, points, ledger, reservations, workoutSets, workoutCompleted, rewardRedemptions, ptBookings, supportTickets, visitReports, workoutDate]);
+    joinChallenge,
+    toggleIntegration,
+    markNotificationRead,
+    markAllNotificationsRead,
+    requestMembershipAction,
+  }), [signedIn, hydrated, onboardingComplete, preferences, points, ledger, reservations, workoutSets, workoutCompleted, rewardRedemptions, ptBookings, supportTickets, visitReports, favoriteClassIds, instructorRatings, joinedChallenges, connectedIntegrations, readNotificationIds, membershipRequests, workoutDate]);
 
   return <StateContext.Provider value={value}>{children}</StateContext.Provider>;
 }
