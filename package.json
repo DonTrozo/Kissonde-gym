@@ -9,7 +9,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "build:web": "expo export -p web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "validate:pitch": "node scripts/validate-pitch-scope.mjs",
+    "validate": "npm run validate:pitch && npm run typecheck && npm run build:web"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.5",
