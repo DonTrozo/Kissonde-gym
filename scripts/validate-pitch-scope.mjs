@@ -9,6 +9,10 @@ const requiredFiles = [
   'src/screens/AdminDashboardScreen.tsx',
   'src/screens/ExerciseDetailScreen.tsx',
   'src/screens/WorkoutHistoryScreen.tsx',
+  'src/screens/TimerScreen.tsx',
+  'src/timer.tsx',
+  'src/TimerAutoRestBridge.tsx',
+  'assets/timer-cue.wav',
   'src/product.ts',
   'src/uxStates.tsx',
 ];
@@ -21,6 +25,8 @@ const product = fs.readFileSync('src/product.ts', 'utf8');
 const app = fs.readFileSync('App.tsx', 'utf8');
 const classes = fs.readFileSync('src/screens/ClassesScreen.tsx', 'utf8');
 const training = fs.readFileSync('src/screens/TrainScreen.tsx', 'utf8');
+const timer = fs.readFileSync('src/timer.tsx', 'utf8');
+const timerScreen = fs.readFileSync('src/screens/TimerScreen.tsx', 'utf8');
 
 const expectations = [
   ['Apple Health', product],
@@ -31,10 +37,19 @@ const expectations = [
   ['Google Wallet', product],
   ['AdminDashboard', app],
   ['OnboardingScreen', app],
+  ['TimerScreen', app],
   ['rateInstructor', classes],
   ['waitlistProbability', classes],
   ['ExerciseDetail', training],
   ['WorkoutHistory', training],
+  ['startInterval', timer],
+  ['startRest', timer],
+  ['startCountdown', timer],
+  ['startStopwatch', timer],
+  ['autoRestAfterSet', timer],
+  ['30 / 30', timer],
+  ['Manter ecrã ativo', timerScreen],
+  ['Som nas transições', timerScreen],
 ];
 
 for (const [needle, source] of expectations) {
