@@ -22,6 +22,7 @@ import {
   MembershipScreen,
   NotificationsScreen,
   OnboardingScreen,
+  PrivacyScreen,
   ProfileScreen,
   RewardsScreen,
   SupportScreen,
@@ -99,13 +100,7 @@ function RootNavigation() {
   if (!onboardingComplete) return <OnboardingScreen />;
 
   return <NavigationContainer theme={navigationTheme}>
-    <Stack.Navigator screenOptions={{
-      headerStyle: { backgroundColor: colors.panel },
-      headerTintColor: colors.text,
-      headerTitleStyle: { fontWeight: '900' },
-      contentStyle: { backgroundColor: colors.bg },
-      headerShadowVisible: false,
-    }}>
+    <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: colors.panel }, headerTintColor: colors.text, headerTitleStyle: { fontWeight: '900' }, contentStyle: { backgroundColor: colors.bg }, headerShadowVisible: false }}>
       <Stack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
       <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Perfil' }} />
       <Stack.Screen name="Support" component={SupportScreen} options={{ title: 'Ajuda' }} />
@@ -113,6 +108,7 @@ function RootNavigation() {
       <Stack.Screen name="Integrations" component={IntegrationsScreen} options={{ title: 'Apps e dispositivos' }} />
       <Stack.Screen name="Challenges" component={ChallengesScreen} options={{ title: 'Desafios' }} />
       <Stack.Screen name="Membership" component={MembershipScreen} options={{ title: 'Adesão' }} />
+      <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'Privacidade' }} />
       <Stack.Screen name="WorkoutHistory" component={WorkoutHistoryScreen} options={{ title: 'Histórico de treino' }} />
       <Stack.Screen name="ExerciseDetail" component={ExerciseDetailScreen} options={{ title: 'Exercício' }} />
       <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ title: 'Kissonde Gestão' }} />
@@ -121,32 +117,12 @@ function RootNavigation() {
 }
 
 export default function App() {
-  return <ErrorBoundary>
-    <SafeAreaProvider>
-      <StateProvider>
-        <StatusBar style="dark" backgroundColor={colors.bg} />
-        <RootNavigation />
-      </StateProvider>
-    </SafeAreaProvider>
-  </ErrorBoundary>;
+  return <ErrorBoundary><SafeAreaProvider><StateProvider><StatusBar style="dark" backgroundColor={colors.bg} /><RootNavigation /></StateProvider></SafeAreaProvider></ErrorBoundary>;
 }
 
 const styles = StyleSheet.create({
   splash: { flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' },
-  tabBar: {
-    height: 68,
-    paddingHorizontal: 7,
-    paddingTop: 6,
-    paddingBottom: 7,
-    backgroundColor: colors.panel,
-    borderTopWidth: 1,
-    borderTopColor: '#E1E8EE',
-    shadowColor: '#173F5E',
-    shadowOpacity: .08,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: -3 },
-    elevation: 6,
-  },
+  tabBar: { height: 68, paddingHorizontal: 7, paddingTop: 6, paddingBottom: 7, backgroundColor: colors.panel, borderTopWidth: 1, borderTopColor: '#E1E8EE', shadowColor: '#173F5E', shadowOpacity: .08, shadowRadius: 12, shadowOffset: { width: 0, height: -3 }, elevation: 6 },
   tabItem: { borderRadius: 14, marginHorizontal: 2, paddingVertical: 1 },
   tabLabel: { fontSize: 10, lineHeight: 13, fontWeight: '800', marginTop: 0 },
 });
