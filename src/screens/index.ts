@@ -1,8 +1,16 @@
 export { AccessScreen } from './AccessScreen';
+export { AdminDashboardScreen } from './AdminDashboardScreen';
+export { ChallengesScreen } from './ChallengesScreen';
 export { ClassesScreen } from './ClassesScreen';
+export { ExerciseDetailScreen } from './ExerciseDetailScreen';
 export { HomeScreen } from './HomeScreen';
+export { IntegrationsScreen } from './IntegrationsScreen';
 export { LoginScreen } from './LoginScreen';
+export { MembershipScreen } from './MembershipScreen';
+export { NotificationsScreen } from './NotificationsScreen';
+export { OnboardingScreen } from './OnboardingScreen';
 export { ProfileScreen } from './ProfileScreen';
 export { RewardsScreen } from './RewardsScreen';
 export { SupportScreen } from './SupportScreen';
 export { TrainScreen } from './TrainScreen';
+export { WorkoutHistoryScreen } from './WorkoutHistoryScreen';
