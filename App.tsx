@@ -33,24 +33,60 @@ import {
   WorkoutHistoryScreen,
 } from './src/screens/index';
 
-function installWebInputBoxModelFix() {
+function installWebRuntimeStyles() {
   if (Platform.OS !== 'web') return;
   const doc = (globalThis as any).document;
-  if (!doc || doc.getElementById('kissonde-input-box-model')) return;
+  if (!doc || doc.getElementById('kissonde-web-runtime')) return;
   const style = doc.createElement('style');
-  style.id = 'kissonde-input-box-model';
+  style.id = 'kissonde-web-runtime';
   style.textContent = `
-    input, textarea { box-sizing: border-box !important; min-width: 0 !important; max-width: 100% !important; }
+    html, body, #root {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    @supports (height: 100dvh) {
+      html, body, #root {
+        height: 100dvh;
+        min-height: 100dvh;
+      }
+    }
+    body, #root {
+      overflow: hidden;
+    }
+    #root {
+      display: flex;
+      flex-direction: column;
+    }
+    #root > div {
+      flex: 1 1 auto;
+      min-height: 0;
+      height: 100%;
+    }
+    input, textarea {
+      box-sizing: border-box !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+    }
     input[inputmode="decimal"], input[inputmode="numeric"] {
-      width: 100% !important; max-width: 100% !important; min-width: 0 !important;
-      padding-left: 0 !important; padding-right: 0 !important; margin-left: 0 !important; margin-right: 0 !important;
-      text-align: center !important; overflow: hidden !important; text-overflow: clip !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      text-align: center !important;
+      overflow: hidden !important;
+      text-overflow: clip !important;
     }
   `;
   doc.head.appendChild(style);
 }
 
-installWebInputBoxModelFix();
+installWebRuntimeStyles();
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
