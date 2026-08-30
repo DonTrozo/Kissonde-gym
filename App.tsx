@@ -28,9 +28,16 @@ function installWebInputBoxModelFix() {
       max-width: 100% !important;
     }
 
-    input[type="text"],
     input[inputmode="decimal"],
     input[inputmode="numeric"] {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      text-align: center !important;
       overflow: hidden !important;
       text-overflow: clip !important;
     }
