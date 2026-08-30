@@ -67,9 +67,9 @@ function ExerciseLogger({ exercise, order }: { exercise: Exercise; order: number
     </View>
 
     <View style={styles.setHeader}>
-      <Text style={[styles.setHeaderText, styles.setNumberColumn]}>SET</Text>
-      <Text style={[styles.setHeaderText, styles.flexColumn]}>PESO</Text>
-      <Text style={[styles.setHeaderText, styles.flexColumn]}>REPS</Text>
+      <Text style={[styles.setHeaderText, styles.setNumberColumn, styles.centerText]}>SET</Text>
+      <Text style={[styles.setHeaderText, styles.flexColumn, styles.centerText]}>PESO</Text>
+      <Text style={[styles.setHeaderText, styles.flexColumn, styles.centerText]}>REPS</Text>
       <Text style={[styles.setHeaderText, styles.saveColumn, styles.centerText]}>OK</Text>
     </View>
     {Array.from({ length: exercise.sets }).map((_, index) => <SetRow key={index + 1} exercise={exercise} setNumber={index + 1} />)}
@@ -97,8 +97,34 @@ function SetRow({ exercise, setNumber }: { exercise: Exercise; setNumber: number
 
   return <View style={[styles.setRow, existing && styles.setRowSaved]}>
     <View style={[styles.setNumber, styles.setNumberColumn]}><Text style={styles.setNumberText}>{setNumber}</Text></View>
-    <View style={[styles.inputWrap, styles.flexColumn]}><TextInput accessibilityLabel={`Peso série ${setNumber}`} keyboardType="decimal-pad" value={weight} onChangeText={setWeight} placeholder="0" placeholderTextColor={colors.slate} style={styles.setInput} /><Text style={styles.inputUnit}>kg</Text></View>
-    <View style={[styles.inputWrap, styles.flexColumn]}><TextInput accessibilityLabel={`Repetições série ${setNumber}`} keyboardType="number-pad" value={reps} onChangeText={setReps} placeholder="0" placeholderTextColor={colors.slate} style={styles.setInput} /></View>
+    <View style={[styles.inputWrap, styles.flexColumn]}>
+      <TextInput
+        accessibilityLabel={`Peso série ${setNumber}`}
+        allowFontScaling={false}
+        keyboardType="decimal-pad"
+        maxLength={6}
+        selectTextOnFocus
+        value={weight}
+        onChangeText={setWeight}
+        placeholder="0"
+        placeholderTextColor={colors.slate}
+        style={styles.setInput}
+      />
+    </View>
+    <View style={[styles.inputWrap, styles.flexColumn]}>
+      <TextInput
+        accessibilityLabel={`Repetições série ${setNumber}`}
+        allowFontScaling={false}
+        keyboardType="number-pad"
+        maxLength={3}
+        selectTextOnFocus
+        value={reps}
+        onChangeText={setReps}
+        placeholder="0"
+        placeholderTextColor={colors.slate}
+        style={styles.setInput}
+      />
+    </View>
     <Pressable accessibilityRole="button" accessibilityLabel={`Guardar série ${setNumber}`} onPress={save} style={[styles.saveSet, styles.saveColumn, existing && styles.savedSet]}><Ionicons name={existing ? 'checkmark' : 'add'} size={18} color={existing ? colors.white : colors.accentDark} /></Pressable>
   </View>;
 }
@@ -185,16 +211,15 @@ const styles = StyleSheet.create({
   setHeaderText: { color: colors.slateDark, fontSize: 7, lineHeight: 10, fontWeight: '900', letterSpacing: .55 },
   setNumberColumn: { width: 28 },
   saveColumn: { width: 40 },
-  flexColumn: { flex: 1 },
+  flexColumn: { flex: 1, minWidth: 0 },
   centerText: { textAlign: 'center' },
   setRow: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingVertical: 2, paddingHorizontal: 1, borderRadius: 11 },
   setRowSaved: { backgroundColor: '#F2F8F5' },
-  setNumber: { height: 28, borderRadius: 9, backgroundColor: colors.panel2, alignItems: 'center', justifyContent: 'center' },
-  setNumberText: { color: colors.text, fontSize: 10, lineHeight: 14, fontWeight: '900' },
-  inputWrap: { flexDirection: 'row', alignItems: 'center', minWidth: 0, minHeight: 40, borderWidth: 1, borderColor: colors.border, borderRadius: 10, backgroundColor: colors.white, paddingHorizontal: 7 },
-  setInput: { flex: 1, minWidth: 0, color: colors.text, textAlign: 'center', fontSize: 12, lineHeight: 16, fontWeight: '800', paddingVertical: 7, paddingHorizontal: 2 },
-  inputUnit: { color: colors.muted, fontSize: 8, lineHeight: 11, fontWeight: '700', marginLeft: 2 },
-  saveSet: { height: 40, borderRadius: 10, backgroundColor: colors.accentSoft, alignItems: 'center', justifyContent: 'center' },
+  setNumber: { height: 28, borderRadius: 9, backgroundColor: colors.panel2, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  setNumberText: { color: colors.text, fontSize: 10, lineHeight: 14, fontWeight: '900', textAlign: 'center' },
+  inputWrap: { alignItems: 'stretch', justifyContent: 'center', minWidth: 0, height: 40, borderWidth: 1, borderColor: colors.border, borderRadius: 10, backgroundColor: colors.white, paddingHorizontal: 0, overflow: 'hidden' },
+  setInput: { width: '100%', maxWidth: '100%', minWidth: 0, height: 38, color: colors.text, textAlign: 'center', fontSize: 12, lineHeight: 16, fontWeight: '800', paddingVertical: 0, paddingHorizontal: 10, margin: 0 },
+  saveSet: { height: 40, borderRadius: 10, backgroundColor: colors.accentSoft, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   savedSet: { backgroundColor: colors.success },
   removeAction: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: 4, marginTop: 6, paddingTop: 2 },
   removeText: { color: colors.danger, fontSize: 9, lineHeight: 13, fontWeight: '800' },
