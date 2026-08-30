@@ -10,36 +10,37 @@ import { BrandLogo } from './src/brand';
 import { ErrorBoundary } from './src/ErrorBoundary';
 import { colors } from './src/theme';
 import { StateProvider, useAppState } from './src/state';
-import { AccessScreen, ClassesScreen, HomeScreen, LoginScreen, ProfileScreen, RewardsScreen, SupportScreen, TrainScreen } from './src/screens/index';
+import {
+  AccessScreen,
+  AdminDashboardScreen,
+  ChallengesScreen,
+  ClassesScreen,
+  ExerciseDetailScreen,
+  HomeScreen,
+  IntegrationsScreen,
+  LoginScreen,
+  MembershipScreen,
+  NotificationsScreen,
+  OnboardingScreen,
+  ProfileScreen,
+  RewardsScreen,
+  SupportScreen,
+  TrainScreen,
+  WorkoutHistoryScreen,
+} from './src/screens/index';
 
 function installWebInputBoxModelFix() {
   if (Platform.OS !== 'web') return;
-
   const doc = (globalThis as any).document;
   if (!doc || doc.getElementById('kissonde-input-box-model')) return;
-
   const style = doc.createElement('style');
   style.id = 'kissonde-input-box-model';
   style.textContent = `
-    input,
-    textarea {
-      box-sizing: border-box !important;
-      min-width: 0 !important;
-      max-width: 100% !important;
-    }
-
-    input[inputmode="decimal"],
-    input[inputmode="numeric"] {
-      width: 100% !important;
-      max-width: 100% !important;
-      min-width: 0 !important;
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-      margin-left: 0 !important;
-      margin-right: 0 !important;
-      text-align: center !important;
-      overflow: hidden !important;
-      text-overflow: clip !important;
+    input, textarea { box-sizing: border-box !important; min-width: 0 !important; max-width: 100% !important; }
+    input[inputmode="decimal"], input[inputmode="numeric"] {
+      width: 100% !important; max-width: 100% !important; min-width: 0 !important;
+      padding-left: 0 !important; padding-right: 0 !important; margin-left: 0 !important; margin-right: 0 !important;
+      text-align: center !important; overflow: hidden !important; text-overflow: clip !important;
     }
   `;
   doc.head.appendChild(style);
@@ -92,9 +93,10 @@ function MainTabs() {
 }
 
 function RootNavigation() {
-  const { signedIn, hydrated } = useAppState();
+  const { signedIn, hydrated, onboardingComplete } = useAppState();
   if (!hydrated) return <View style={styles.splash}><BrandLogo width={196} /></View>;
   if (!signedIn) return <LoginScreen />;
+  if (!onboardingComplete) return <OnboardingScreen />;
 
   return <NavigationContainer theme={navigationTheme}>
     <Stack.Navigator screenOptions={{
@@ -107,6 +109,13 @@ function RootNavigation() {
       <Stack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
       <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Perfil' }} />
       <Stack.Screen name="Support" component={SupportScreen} options={{ title: 'Ajuda' }} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notificações' }} />
+      <Stack.Screen name="Integrations" component={IntegrationsScreen} options={{ title: 'Apps e dispositivos' }} />
+      <Stack.Screen name="Challenges" component={ChallengesScreen} options={{ title: 'Desafios' }} />
+      <Stack.Screen name="Membership" component={MembershipScreen} options={{ title: 'Adesão' }} />
+      <Stack.Screen name="WorkoutHistory" component={WorkoutHistoryScreen} options={{ title: 'Histórico de treino' }} />
+      <Stack.Screen name="ExerciseDetail" component={ExerciseDetailScreen} options={{ title: 'Exercício' }} />
+      <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ title: 'Kissonde Gestão' }} />
     </Stack.Navigator>
   </NavigationContainer>;
 }
