@@ -11,14 +11,22 @@
     "runtimeVersion": {
       "policy": "appVersion"
     },
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F8FA"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "ao.kissonde.gym",
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "infoPlist": {
+        "UIRequiresFullScreen": false
+      }
     },
     "android": {
       "package": "ao.kissonde.gym",
-      "versionCode": 1
+      "versionCode": 1,
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "bundler": "metro",
