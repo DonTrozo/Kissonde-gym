@@ -9,6 +9,7 @@ export { LoginScreen } from './LoginScreen';
 export { MembershipScreen } from './MembershipScreen';
 export { NotificationsScreen } from './NotificationsScreen';
 export { OnboardingScreen } from './OnboardingScreen';
+export { PrivacyScreen } from './PrivacyScreen';
 export { ProfileScreen } from './ProfileScreen';
 export { RewardsScreen } from './RewardsScreen';
 export { SupportScreen } from './SupportScreen';
